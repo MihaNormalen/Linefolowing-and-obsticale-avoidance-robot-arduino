@@ -1,5 +1,5 @@
 # Linefolowing-and-obsticale-avoidance-robot-arduino
-# Arduino Robot: Unified Line Follower & Obstacle Avoider (V8.0)
+# Arduino Robot: Unified Line Follower & Obstacle Avoider 
 
 This repository contains the complete Arduino sketch for a mobile robot utilizing a **Finite State Machine (FSM)** approach to combine two core functionalities: precise line following using three Infrared (IR) sensors and dynamic obstacle avoidance using an ultrasonic sensor and a scanning servo.
 
