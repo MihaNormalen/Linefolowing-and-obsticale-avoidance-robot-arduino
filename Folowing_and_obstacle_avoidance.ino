@@ -1,16 +1,8 @@
-// Sledilec Črte in Izogibalec Oviran (Verzija 8.0 - Združeno)
-//
-// Ta koda združuje:
-// 1. Vaše želene nastavitve pinov in hitrosti (iz V7.3 / sketch_nov6f_Kinda_ok.ino).
-// 2. Popravljeno logiko sledenja s 3 senzorji (iz V7.13), ki pravilno vozi naravnost.
-// 3. 5-sekundni zamik ob zagonu.
-// 4. Ohranjeno neblokirajočo FSM logiko, optimizacijo motorjev in hiter servo.
-
 #include <NewPing.h>
 #include <Servo.h>
 #include <AFMotor.h>
 
-// --- PIN DEFINICIJE (Po vaših nastavitvah) ---
+// --- PIN DEFINICIJE 
 #define IR_LEFT A5          
 #define IR_CENTER A4        
 #define IR_RIGHT A2         
@@ -22,7 +14,7 @@
 // --- NASTAVITEV MOTORJEV (AFMotor Shield) ---
 AF_DCMotor motorFL(3), motorFR(2), motorRL(4), motorRR(1);
 
-// --- KONSTANTE ZA HITROST IN PRAGE (Po vaših nastavitvah) ---
+// --- KONSTANTE ZA HITROST IN PRAGE  ---
 const int OBSTACLE_THRESHOLD = 10; 
 const int MIN_CLEARANCE = 20;      
 const int BASE_SPEED = 80;        
@@ -35,7 +27,7 @@ const int SCAN_LEFT = 150;
 const int SCAN_RIGHT = 30;
 
 // --- KONSTANTE ZA ČAS ---
-const unsigned long START_DELAY_TIME = 3000;  // NOVO: 5 sekund zamik
+const unsigned long START_DELAY_TIME = 3000;  // 3 sekundni zamik
 const unsigned long REVERSE_TIME = 1000;      
 const unsigned long AVOID_TURN_TIME = 300;   
 const unsigned long AVOID_FORWARD_TIME = 500; 
@@ -46,11 +38,11 @@ const unsigned long STATE_COOLDOWN_TIME = 50;
 
 // --- SPREMENLJIVKE STANJA ---
 enum State { LINE_FOLLOW, OBSTACLE_AVOID, SCANNING, REVERSING };
-enum Direction { LEFT, RIGHT, NONE }; // Potrebno za logiko V7.13
+enum Direction { LEFT, RIGHT, NONE }; 
 State currentState = LINE_FOLLOW;
-Direction lastDirection = NONE; // Potrebno za logiko V7.13
+Direction lastDirection = NONE; 
 unsigned long stateStartTime = 0;
-unsigned long lastSeenTime = 0; // Potrebno za logiko V7.13
+unsigned long lastSeenTime = 0; 
 unsigned long lastStateExecuteTime = 0;
 unsigned long stateChangeTime = 0; 
 int avoidStep = 0; 
@@ -164,7 +156,7 @@ void readIRSensors(bool& L, bool& C, bool& R) {
 // -----------------------------------------------------------------------
 
 // ***********************************************************************
-// *** USPEŠNA LOGIKA SLEDENJA (iz V7.13) ***
+// *** LOGIKA SLEDENJA  ***
 // ***********************************************************************
 void handleLineFollowing() {
   // 1. Preveri oviro
@@ -180,34 +172,34 @@ void handleLineFollowing() {
   if (millis() - lastStateExecuteTime < STATE_INTERVAL) return;
   lastStateExecuteTime = millis();
 
-  // Logika SLEDENJA ČRTI (POPRAVLJEN VRSTNI RED)
+  // Logika SLEDENJA ČRTI 
 
   // 1. Vsa stanja za VOŽNJO NARAVNOST (Najvišja prioriteta)
   // (0,1,0) = Samo center na črti
   // (1,1,1) = Prečna črta
-  // (1,0,1) = Nenavadno stanje (prej klicalo STOP), zdaj gre naravnost
+  // (1,0,1) = Nenavadno stanje, gre naravnost
   if ( (!L && C && !R) || (L && C && R) || (L && !C && R) ) {
-      moveForward(BASE_SPEED); // Uporabi vašo hitrost 80
+      moveForward(BASE_SPEED); // Uporabi vašo hitrost 
       lastDirection = NONE;
   }
   // 2. NEŽEN ZAVOJ LEVO (C+R)
   else if (!L && C && R) {
-      pivotLeft(LIGHT_ADJUST_SPEED); // Uporabi vašo hitrost 80
+      pivotLeft(LIGHT_ADJUST_SPEED); // Uporabi vašo hitrost 
       lastDirection = LEFT;
   } 
   // 3. NEŽEN ZAVOJ DESNO (L+C)
   else if (L && C && !R) {
-      pivotRight(LIGHT_ADJUST_SPEED); // Uporabi vašo hitrost 80
+      pivotRight(LIGHT_ADJUST_SPEED); // Uporabi vašo hitrost 
       lastDirection = RIGHT;
   }
   // 4. OSTER ZAVOJ LEVO (SAMO R)
   else if (!L && !C && R) {
-      pivotLeft(PIVOT_SPEED); // Uporabi vašo hitrost 180
+      pivotLeft(PIVOT_SPEED); // Uporabi vašo hitrost 
       lastDirection = LEFT;
   }
   // 5. OSTER ZAVOJ DESNO (SAMO L)
   else if (L && !C && !R) {
-      pivotRight(PIVOT_SPEED); // Uporabi vašo hitrost 180
+      pivotRight(PIVOT_SPEED); // Uporabi vašo hitrost 
       lastDirection = RIGHT;
   } 
   // 6. IZGUBLJENA ČRTA (Vsi FALSE: 0,0,0)
@@ -237,7 +229,7 @@ void handleLineFollowing() {
 
 void handleReversing(unsigned long currentTime) {
   if (currentTime - stateStartTime < REVERSE_TIME) {
-    moveBackward(BASE_SPEED); // Uporabi vašo hitrost 80
+    moveBackward(BASE_SPEED); // Uporabi vašo hitrost 
   } else {
     changeState(SCANNING);
   }
@@ -352,7 +344,7 @@ void setup() {
   stopMotors();
   stateStartTime = millis();
 
-  // NOVO: 5-sekundni zamik ob zagonu
+  // 3-sekundni zamik ob zagonu
   Serial.println("Cakam 5 sekund...");
   delay(START_DELAY_TIME);
   Serial.println("ZACENJAM!");
